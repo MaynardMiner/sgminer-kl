@@ -1112,7 +1112,7 @@ out:
   }
 
   if (algorithm->type == ALGO_LYRA2Z) {
-	  size_t GlobalThreads;
+	  /*size_t GlobalThreads;
 	  //	  readbufsize = 76UL;
 		  
       set_threads_hashes(1, clState->compute_shaders, &GlobalThreads, 1, &cgpu->intensity, &cgpu->xintensity, &cgpu->rawintensity, &cgpu->algorithm);
@@ -1130,7 +1130,7 @@ out:
 		  applog(LOG_ERR, "Error %d when creating lyra2z scratchpads buffer.\n", status);
 		  return NULL;
 		  
-	  }
+	  }*/
 	  
   }
 

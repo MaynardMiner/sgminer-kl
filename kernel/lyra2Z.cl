@@ -64,11 +64,15 @@ typedef long sph_s64;
 #define SPH_T64(x)    ((x) & SPH_C64(0xFFFFFFFFFFFFFFFF))
 */
 
-#define memshift 3
-#include "lyra2v16.cl"
-
 #define SWAP4(x) as_uint(as_uchar4(x).wzyx)
 #define SWAP8(x) as_ulong(as_uchar8(x).s76543210)
+#define SWAP32(x) as_ulong(as_uint2(x).s10)
+ulong ROTR64(const ulong x2, const uint y)
+	{
+	uint2 x = as_uint2(x2);
+	if(y < 32) return(as_ulong(amd_bitalign(x.s10, x, y)));
+	else return(as_ulong(amd_bitalign(x, x.s10, (y - 32))));
+	}
 //#define SWAP8(x) as_ulong(as_uchar8(x).s32107654)
 /*
 #if SPH_BIG_ENDIAN
@@ -532,7 +536,7 @@ kernel void search1(global ulong *hashio, global ulong *notepad)
 	// cipher_G only requires to shuffle rows so 4 elements would be sufficient.
 	// Unfortunately, reduceDuplexRowSetupf shuffles whole matrices thinking at them
 	// as an array of 12 ulongs. That's still just 1.5 KiB of local, very viable!
-	local ulong roundPad[12 * 64];
+	local ulong roundPad[12 * 16];
 	local ulong *xchange = roundPad + get_local_id(1) * 4;
 	hashio += (SLOT * HASH_SIZE / sizeof(ulong));
 	notepad += get_local_id(0) + 4 * SLOT; // wait, wut? We pack'em close! Very different from legacy kernel!
@@ -563,22 +567,42 @@ kernel void search1(global ulong *hashio, global ulong *notepad)
 	make_next_hyper(5, 2, 6, state, roundPad, notepad);
     make_next_hyper(6, 1, 7, state, roundPad, notepad);
 	
-	uint prev = 7;
 	uint modify;
-	for (uint loop = 0; loop < LYRA_ROUNDS; loop++) {
-		local uint *shorter = (local uint*)roundPad;
+    uint prev = 7;
+    uint iterator = 0;
+    for (uint j = 0; j < 4; j++) {
+       for (uint i = 0; i<8; i++) {
+	    local uint *shorter = (local uint*)roundPad;
 		if(get_local_id(0) == 0) {
 			// Ouch! I am the only one who can compute this value.
 			// All others in my team need this and with shuffle we can get it FAST.
 			// But I have no shuffle so I go LDS. And LDS is either point-to-point
 			// or broadcast. Ok, we'll stall a bit.
-			shorter[get_local_id(1)] = (uint)(state[0] % 4);
+			shorter[get_local_id(1)] = (uint)(state[0] % 8);
 		}
 		barrier(CLK_LOCAL_MEM_FENCE); // nop
 		modify = shorter[get_local_id(1)];
-		hyper_xor(prev, modify, loop, state, roundPad, notepad);
-		prev = loop;
-	}
+		hyper_xor(prev, modify, iterator, state, roundPad, notepad);
+		prev = iterator;
+		iterator = (iterator + 3) & 7;
+      }
+      for (uint i = 0; i<8; i++) {
+	  local uint *shorter = (local uint*)roundPad;
+		if(get_local_id(0) == 0) {
+			// Ouch! I am the only one who can compute this value.
+			// All others in my team need this and with shuffle we can get it FAST.
+			// But I have no shuffle so I go LDS. And LDS is either point-to-point
+			// or broadcast. Ok, we'll stall a bit.
+			shorter[get_local_id(1)] = (uint)(state[0] % 8);
+		}
+		barrier(CLK_LOCAL_MEM_FENCE); // nop
+		modify = shorter[get_local_id(1)];
+		hyper_xor(prev, modify, iterator, state, roundPad, notepad);
+		prev = iterator;
+		iterator = (iterator - 1) & 7;
+      }
+    }
+	
 	notepad += HYPERMATRIX_COUNT * modify;
 	for(int loop = 0; loop < 3; loop++) state[loop] ^= notepad[loop * REG_ROW_COUNT];
 	for(int loop = 0; loop < 12; loop++) round_lyra_4way(state, xchange);
