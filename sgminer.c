@@ -17,9 +17,6 @@
 #include <curses.h>
 #endif
 
-FILE _iob[] = { *stdin, *stdout, *stderr };
-extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
