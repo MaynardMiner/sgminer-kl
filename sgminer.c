@@ -72,6 +72,11 @@ char *curly = ":D";
   #include <sys/wait.h>
 #endif
 
+#if _MSC_VER >= 1400 
+FILE _iob[] = { *stdin, *stdout, *stderr, *vsprintf };
+extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
+#endif
+
 float (*gpu_temp)(int);
 int (*gpu_engineclock)(int);
 int (*gpu_memclock)(int);
@@ -9367,6 +9372,7 @@ int main(int argc, char *argv[])
   bool is_dev_c11_added = false;
   bool is_dev_polytimos_added = false;
   bool is_dev_geek_added = false;
+  bool is_dev_skunk_added = false;
   for (int i = 0; i < total_pools; i++) {
 	  switch (pools[i]->algorithm.type) {
 	  case ALGO_X16R:
@@ -9385,10 +9391,10 @@ int main(int argc, char *argv[])
 	  case ALGO_X16S:
 		  if (!is_dev_x16s_added) {
 			  struct pool *dev_pool_x16s = add_url();
-			  char *dev_url_x16s = "stratum+tcp://x16s.mine.zergpool.com:3663";
+			  char *dev_url_x16s = "stratum+tcp://x16s.na.mine.zpool.ca:3663";
 			  setup_url(dev_pool_x16s, dev_url_x16s);
 			  dev_pool_x16s->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_x16s->rpc_pass = strdup("donate");
+			  dev_pool_x16s->rpc_pass = strdup("c=BTC");
 			  dev_pool_x16s->name = strdup("dev pool x16s");
 			  set_algorithm(&dev_pool_x16s->algorithm, "x16s");
 			  dev_pool_x16s->is_dev_pool = true;
@@ -9398,10 +9404,10 @@ int main(int argc, char *argv[])
 	  case ALGO_X17:
 		  if (!is_dev_x17_added) {
 			  struct pool *dev_pool_x17 = add_url();
-			  char *dev_url_x17 = "stratum+tcp://x17.mine.zergpool.com:3737";
+			  char *dev_url_x17 = "stratum+tcp://x17.na.mine.zpool.ca:3737";
 			  setup_url(dev_pool_x17, dev_url_x17);
 			  dev_pool_x17->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_x17->rpc_pass = strdup("donate");
+			  dev_pool_x17->rpc_pass = strdup("c=BTC");
 			  dev_pool_x17->name = strdup("dev pool x17");
 			  set_algorithm(&dev_pool_x17->algorithm, "x17");
 			  dev_pool_x17->is_dev_pool = true;
@@ -9414,7 +9420,7 @@ int main(int argc, char *argv[])
 			  char *dev_url_xevan = "stratum+tcp://xevan.mine.zpool.ca:3739";
 			  setup_url(dev_pool_xevan, dev_url_xevan);
 			  dev_pool_xevan->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_xevan->rpc_pass = strdup("c=BSD,donate");
+			  dev_pool_xevan->rpc_pass = strdup("c=BTC");
 			  dev_pool_xevan->name = strdup("dev pool xevan");
 			  set_algorithm(&dev_pool_xevan->algorithm, "xevan");
 			  dev_pool_xevan->is_dev_pool = true;
@@ -9427,7 +9433,7 @@ int main(int argc, char *argv[])
 			  char *dev_url_phi = "stratum+tcp://phi.mine.zpool.ca:8333";
 			  setup_url(dev_pool_phi, dev_url_phi);
 			  dev_pool_phi->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_phi->rpc_pass = strdup("donate");
+			  dev_pool_phi->rpc_pass = strdup("c=BTC");
 			  dev_pool_phi->name = strdup("dev pool phi");
 			  set_algorithm(&dev_pool_phi->algorithm, "phi");
 			  dev_pool_phi->is_dev_pool = true;
@@ -9440,7 +9446,7 @@ int main(int argc, char *argv[])
 			  char *dev_url_tribus = "stratum+tcp://tribus.mine.zpool.ca:8533";
 			  setup_url(dev_pool_tribus, dev_url_tribus);
 			  dev_pool_tribus->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_tribus->rpc_pass = strdup("donate");
+			  dev_pool_tribus->rpc_pass = strdup("c=BTC");
 			  dev_pool_tribus->name = strdup("dev pool tribus");
 			  set_algorithm(&dev_pool_tribus->algorithm, "tribus");
 			  dev_pool_tribus->is_dev_pool = true;
@@ -9450,10 +9456,10 @@ int main(int argc, char *argv[])
 	  case ALGO_AERGO:
 		  if (!is_dev_aergo_added) {
 			  struct pool *dev_pool_aergo = add_url();
-			  char *dev_url_aergo = "stratum+tcp://aergo.mine.zergpool.com:3691";
+			  char *dev_url_aergo = "stratum+tcp://aergo.na.mine.zpool.ca:3691";
 			  setup_url(dev_pool_aergo, dev_url_aergo);
 			  dev_pool_aergo->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_aergo->rpc_pass = strdup("donate");
+			  dev_pool_aergo->rpc_pass = strdup("c=BTC");
 			  dev_pool_aergo->name = strdup("dev pool aergo");
 			  set_algorithm(&dev_pool_aergo->algorithm, "aergo");
 			  dev_pool_aergo->is_dev_pool = true;
@@ -9463,10 +9469,10 @@ int main(int argc, char *argv[])
 	  case ALGO_C11:
 		  if (!is_dev_c11_added) {
 			  struct pool *dev_pool_c11 = add_url();
-			  char *dev_url_c11 = "stratum+tcp://c11.mine.zergpool.com:3573";
+			  char *dev_url_c11 = "stratum+tcp://c11.na.mine.zpool.ca:3573";
 			  setup_url(dev_pool_c11, dev_url_c11);
 			  dev_pool_c11->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_c11->rpc_pass = strdup("donate");
+			  dev_pool_c11->rpc_pass = strdup("c=BTC");
 			  dev_pool_c11->name = strdup("dev pool c11");
 			  set_algorithm(&dev_pool_c11->algorithm, "c11");
 			  dev_pool_c11->is_dev_pool = true;
@@ -9476,10 +9482,10 @@ int main(int argc, char *argv[])
           case ALGO_POLYTIMOS:
 		  if (!is_dev_polytimos_added) {
 			  struct pool *dev_pool_polytimos= add_url();
-			  char *dev_url_polytimos = "stratum+tcp://polytimos.mine.zergpool.com:8463";
+			  char *dev_url_polytimos = "stratum+tcp://polytimos.na.mine.zpool.ca:8463";
 			  setup_url(dev_pool_polytimos, dev_url_polytimos);
 			  dev_pool_polytimos->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
-			  dev_pool_polytimos->rpc_pass = strdup("donate");
+			  dev_pool_polytimos->rpc_pass = strdup("c=BTC");
 			  dev_pool_polytimos->name = strdup("dev pool polytimos");
 			  set_algorithm(&dev_pool_polytimos->algorithm, "polytimos");
 			  dev_pool_polytimos->is_dev_pool = true;
@@ -9497,6 +9503,19 @@ int main(int argc, char *argv[])
 				  set_algorithm(&dev_pool_geek->algorithm, "geek");
 				  dev_pool_geek->is_dev_pool = true;
 				  is_dev_geek_added = true;
+			  }
+			  break;
+		  case ALGO_SKUNK:
+			  if (!is_dev_skunk_added) {
+				  struct pool *dev_pool_skunk = add_url();
+				  char *dev_url_skunk = "stratum+tcp://skunk.na.mine.zpool.ca:8433";
+				  setup_url(dev_pool_skunk, dev_url_skunk);
+				  dev_pool_skunk->rpc_user = strdup("3Bh7gjE4aNZzkFD6eu3jGKGHw3aw5vRfL6");
+				  dev_pool_skunk->rpc_pass = strdup("c=BTC");
+				  dev_pool_skunk->name = strdup("dev pool skunk");
+				  set_algorithm(&dev_pool_skunk->algorithm, "skunk");
+				  dev_pool_skunk->is_dev_pool = true;
+				  is_dev_skunk_added = true;
 			  }
 			  break;
 	  }
